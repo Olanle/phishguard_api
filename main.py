@@ -14,7 +14,7 @@ app = FastAPI()
 # Allow CORS for your extension
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or specify the exact origin of your extension
+    allow_origins=["*"],  # Consider restricting in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,16 +27,28 @@ class URLInput(BaseModel):
 @app.post("/predict")
 def predict_url(data: URLInput):
     try:
+        # Extract features and scale
         features = extract_features(data.url)
         df = pd.DataFrame([features])
         scaled = scaler.transform(df)
 
-        pred = model.predict(scaled)[0]
-        proba = model.predict_proba(scaled)[0][pred]
+        # Predict
+        proba_all = model.predict_proba(scaled)[0]  # e.g., [0.8, 0.2]
+        phishing_proba = proba_all[1]
+        pred = int(phishing_proba > 0.5)
+
+        # Determine severity
+        if phishing_proba > 0.75:
+            severity = "high"
+        elif phishing_proba > 0.5:
+            severity = "medium"
+        else:
+            severity = "low"
 
         return {
-            "prediction": int(pred),
-            "confidence": round(float(proba), 4)
+            "prediction": pred,  # 1 = phishing, 0 = safe
+            "confidence": round(phishing_proba if pred == 1 else 1 - phishing_proba, 4),
+            "severity": severity
         }
 
     except Exception as e:
