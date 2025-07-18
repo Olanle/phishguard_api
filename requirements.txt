@@ -1,8 +1,9 @@
 fastapi
 uvicorn
 pandas
-scikit-learn
 joblib
 requests
-python-whois
 beautifulsoup4
+scikit-learn
+tldextract
+python-whois
