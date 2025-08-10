@@ -7,4 +7,3 @@ beautifulsoup4
 scikit-learn
 tldextract
 python-whois
-xgboost

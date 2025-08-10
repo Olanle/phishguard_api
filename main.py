@@ -103,7 +103,7 @@ all_features = [
 ]
 
 # Prediction endpoint
-@app.post("/")
+@app.post("/predict")
 def predict_url(input_data: URLInput):
     try:
         features = extract_all_features(input_data.url)
